@@ -16,7 +16,7 @@ Eine einfache, bunte Lern-App für Kinder. Sie läuft komplett offline, hat kein
 
 Die Gestaltung folgt dem, was beim Japanischlernen für Kinder gut funktioniert: kurze tägliche Einheiten, Merkbilder (Mnemonics), Hören und Sprechen, Nachmalen von Hand und spielerisches Wiederholen.
 
-## App installieren (Android)
+## App installieren (Android 5.0 oder neuer)
 
 1. Öffne im Repo den Bereich **Releases** und lade **NihongoKids.apk** aus „Nihongo Kids APK (neueste Version)“ herunter.
 2. Öffne die Datei und erlaube die Installation aus dieser Quelle.

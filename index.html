@@ -29,7 +29,7 @@ button{font-family:inherit;color:inherit;border:0;cursor:pointer}
 #title{flex:1;font-size:22px;font-weight:800;text-align:center}
 #stars{background:var(--sun);border-radius:20px;padding:8px 14px;font-weight:800;font-size:18px;box-shadow:0 3px 0 #0002}
 main{flex:1;min-height:0;position:relative}
-.screen{display:none;position:absolute;inset:0;overflow-y:auto;padding:6px 14px 28px;-webkit-overflow-scrolling:touch}
+.screen{display:none;position:absolute;top:0;right:0;bottom:0;left:0;overflow-y:auto;padding:6px 14px 28px;-webkit-overflow-scrolling:touch}
 .screen.on{display:block}
 .jp{font-family:var(--jp)}
 /* Start */
@@ -64,7 +64,7 @@ main{flex:1;min-height:0;position:relative}
 .kc .st{position:absolute;top:3px;right:6px;font-size:14px}
 .kc.h{border-bottom:5px solid var(--red)} .kc.k{border-bottom:5px solid var(--sky)}
 /* Detail */
-#detail{position:fixed;inset:0;z-index:50;background:#0007;display:none;align-items:flex-end;justify-content:center}
+#detail{position:fixed;top:0;right:0;bottom:0;left:0;z-index:50;background:#0007;display:none;align-items:flex-end;justify-content:center}
 #detail.on{display:flex}
 .sheet{background:var(--bg);width:min(560px,100%);max-height:94vh;overflow:auto;border-radius:30px 30px 0 0;padding:16px 16px 26px}
 .sheet .row{display:flex;gap:12px;align-items:center}
@@ -86,12 +86,12 @@ main{flex:1;min-height:0;position:relative}
 .strip button{flex:0 0 auto;width:52px;height:52px;border-radius:15px;background:#fff;font-family:var(--jp);font-size:28px;font-weight:700;box-shadow:0 3px 0 #0001}
 .strip button.on{background:var(--ink);color:#fff}
 .tinfo{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 8px;font-size:18px;font-weight:700}
-.board{--bw:320px;position:relative;width:min(92vw,50vh,520px);aspect-ratio:1/1;margin:0 auto;background:#fff;border-radius:26px;box-shadow:0 5px 0 #0002;overflow:hidden;
+.board{--bw:320px;position:relative;width:80vw;width:min(92vw,50vh,520px);aspect-ratio:1/1;margin:0 auto;background:#fff;border-radius:26px;box-shadow:0 5px 0 #0002;overflow:hidden;
   background-image:linear-gradient(90deg,transparent calc(50% - 1px),#ffb3bd calc(50% - 1px),#ffb3bd calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(0deg,transparent calc(50% - 1px),#ffb3bd calc(50% - 1px),#ffb3bd calc(50% + 1px),transparent calc(50% + 1px));
   border:3px solid #ffb3bd}
-.ghost{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--jp);font-weight:700;font-size:calc(var(--bw)*.78);color:rgba(60,70,120,.17);pointer-events:none;line-height:1}
+.ghost{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;align-items:center;justify-content:center;font-family:var(--jp);font-weight:700;font-size:calc(var(--bw)*.78);color:rgba(60,70,120,.17);pointer-events:none;line-height:1}
 .ghost.off{display:none}
-#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#cv{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;touch-action:none}
 .tools{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;flex-wrap:wrap}
 .sw{width:42px;height:42px;border-radius:50%;border:4px solid #fff;box-shadow:0 2px 0 #0003}
 .sw.on{outline:4px solid var(--ink)}
@@ -137,7 +137,7 @@ textarea:focus{outline:none;border-color:var(--red)}
 .ans button:disabled{cursor:default}
 @keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 .mem{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-.mc{aspect-ratio:3/4;border-radius:18px;background:linear-gradient(160deg,#7b4bd8,#4cc9f0);font-size:36px;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #0003}
+.mc{min-height:92px;aspect-ratio:3/4;border-radius:18px;background:linear-gradient(160deg,#7b4bd8,#4cc9f0);font-size:36px;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #0003}
 .mc.up{background:#fff;color:var(--ink)}
 .mc.done{background:#b9f6ca;color:var(--ink)}
 .mc .jp{font-size:40px;font-weight:700}
@@ -157,7 +157,7 @@ textarea:focus{outline:none;border-color:var(--red)}
 @keyframes fly{from{transform:translate(0,0) scale(.6);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(var(--r));opacity:0}}
 
 /* ===== Start-Animation (ca. 3 Sekunden) ===== */
-.introscene{position:fixed;inset:0;z-index:300;overflow:hidden;display:flex;align-items:center;justify-content:center;
+.introscene{position:fixed;top:0;right:0;bottom:0;left:0;z-index:300;overflow:hidden;display:flex;align-items:center;justify-content:center;
   background:radial-gradient(circle at 50% 42%,#ffb347 0,#ff6b4a 22%,#e63946 46%,#3a1c71 100%)}
 .introscene .rays{position:absolute;left:50%;top:42%;width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;
   background:repeating-conic-gradient(rgba(255,255,255,.13) 0 6deg,transparent 6deg 14deg);animation:spin 6s linear infinite}
@@ -186,11 +186,11 @@ textarea:focus{outline:none;border-color:var(--red)}
 .cutB{clip-path:polygon(100% 28%,100% 100%,0 100%,0 72%)}
 .cutA.go{transform:translate(-9%,-15%) rotate(-6deg);opacity:0}
 .cutB.go{transform:translate(9%,15%) rotate(6deg);opacity:0}
-#cutline{position:fixed;inset:0;z-index:301;pointer-events:none;width:100%;height:100%}
+#cutline{position:fixed;top:0;right:0;bottom:0;left:0;z-index:301;pointer-events:none;width:100%;height:100%}
 #cutline line{stroke:#fff;stroke-width:7;stroke-linecap:round;filter:drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ffd23f);stroke-dasharray:3000;stroke-dashoffset:3000;animation:cut .22s ease-out forwards,cutfade .5s .22s forwards}
 @keyframes cut{to{stroke-dashoffset:0}}
 @keyframes cutfade{to{opacity:0}}
-#flash{position:fixed;inset:0;z-index:302;background:#fff;opacity:0;pointer-events:none;animation:fl .35s ease-out}
+#flash{position:fixed;top:0;right:0;bottom:0;left:0;z-index:302;background:#fff;opacity:0;pointer-events:none;animation:fl .35s ease-out}
 @keyframes fl{0%{opacity:.85}100%{opacity:0}}
 </style>
 </head>
@@ -712,7 +712,7 @@ function sizeCanvas(){
   const b=$('#board'),w=b.clientWidth;if(!w)return;
   const dpr=window.devicePixelRatio||1;
   cv.width=Math.round(w*dpr);cv.height=Math.round(w*dpr);
-  b.style.setProperty('--bw',w+'px');
+  b.style.setProperty('--bw',w+'px');b.style.height=w+'px';
 }
 function redraw(){
   ctx.clearRect(0,0,cv.width,cv.height);
@@ -759,7 +759,7 @@ function normDe(s){
   s=s.replace(/tsch/g,'ch').replace(/sch/g,'sh').replace(/ph/g,'f').replace(/ck/g,'kk').replace(/tz/g,'ts')
      .replace(/ei/g,'ai').replace(/ey/g,'ai').replace(/eu/g,'oi').replace(/ie/g,'ii')
      .replace(/qu/g,'kw').replace(/x/g,'ks').replace(/q/g,'k').replace(/c(?!h)/g,'k')
-     .replace(/z/g,'ts').replace(/v/g,'f').replace(/l/g,'r').replace(/j/g,'y').replace(/(?<=[a-z])er$/,'aa');
+     .replace(/z/g,'ts').replace(/v/g,'f').replace(/l/g,'r').replace(/j/g,'y').replace(/([a-z])er$/,'$1aa');
   s=s.replace(/w(?![aeiou])/g,'b').replace(/y(?![aeiou])/g,'i');
   s=s.replace(/([aeiou])h(?![aeiou])/g,'$1');
   return s;
@@ -903,7 +903,7 @@ function endGame(){
 }
 function startMemory(){
   const seenM=new Set();const base=shuffle(G.pool).filter(c=>!seenM.has(c.e)&&seenM.add(c.e)).slice(0,6);
-  const cards=shuffle(base.flatMap(c=>[{c,t:'k'},{c,t:'p'}]));
+  const cards=shuffle(base.reduce((a,c)=>a.concat([{c,t:'k'},{c,t:'p'}]),[]));
   G.cards=cards;G.up=[];G.done=0;G.moves=0;
   $('#g-play').innerHTML=`<div class="note" style="text-align:center;margin-bottom:10px">Finde immer ein Zeichen und das passende Bild!</div><div class="mem" id="mem">${cards.map((x,i)=>`<button class="mc" data-i="${i}">❓</button>`).join('')}</div>`;
   $('#mem').onclick=e=>{
