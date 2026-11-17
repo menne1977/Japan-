@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#e63946">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Nihongo Kids – Japanisch lernen</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{
+  --red:#e63946; --red2:#c81d3a; --sky:#4cc9f0; --sun:#ffd23f; --mint:#2ec4b6; --plum:#7b4bd8; --pink:#ff7eb6;
+  --ink:#2b2d42; --bg:#fff6e5; --card:#ffffff;
+  --jp:"Hiragino Maru Gothic ProN","Yu Gothic","Noto Sans JP","Noto Sans CJK JP","Droid Sans Japanese",sans-serif;
+  --ui:"Baloo 2","Nunito","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--ui);overscroll-behavior:none}
+body{overflow:hidden;user-select:none;-webkit-user-select:none}
+button{font-family:inherit;color:inherit;border:0;cursor:pointer}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;
+  background:radial-gradient(circle at 15% 0,#ffe3ec 0,transparent 40%),radial-gradient(circle at 100% 20%,#d9f4ff 0,transparent 38%),var(--bg)}
+.top{display:flex;align-items:center;gap:10px;padding:max(8px,env(safe-area-inset-top)) 12px 8px;min-height:60px}
+.top .ic{width:48px;height:48px;border-radius:16px;background:#fff;font-size:24px;box-shadow:0 3px 0 #0001}
+.top .ic[hidden]{display:block;visibility:hidden}
+#title{flex:1;font-size:22px;font-weight:800;text-align:center}
+#stars{background:var(--sun);border-radius:20px;padding:8px 14px;font-weight:800;font-size:18px;box-shadow:0 3px 0 #0002}
+main{flex:1;min-height:0;position:relative}
+.screen{display:none;position:absolute;inset:0;overflow-y:auto;padding:6px 14px 28px;-webkit-overflow-scrolling:touch}
+.screen.on{display:block}
+.jp{font-family:var(--jp)}
+/* Start */
+.hello{display:flex;align-items:center;gap:12px;background:#fff;border-radius:22px;padding:12px 16px;margin-bottom:14px;box-shadow:0 4px 0 #0001}
+.hello .big{font-size:42px}
+.hello p{margin:0;font-size:17px;line-height:1.25}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{border-radius:26px;padding:16px 10px 14px;color:#fff;font-weight:800;font-size:19px;display:flex;flex-direction:column;align-items:center;gap:4px;
+  box-shadow:0 6px 0 #0003;min-height:128px;justify-content:center;transition:transform .08s}
+.tile:active{transform:translateY(4px);box-shadow:0 2px 0 #0003}
+.tile .em{font-size:46px;line-height:1}
+.tile small{font-weight:600;font-size:13px;opacity:.95}
+.t1{background:linear-gradient(160deg,#ff6b6b,#e63946)}
+.t2{background:linear-gradient(160deg,#4cc9f0,#2f80ed)}
+.t3{background:linear-gradient(160deg,#9b6bff,#6a3fd1)}
+.t4{background:linear-gradient(160deg,#2ec4b6,#1b9aaa)}
+.t5{background:linear-gradient(160deg,#ffb347,#f77f00)}
+.t6{background:linear-gradient(160deg,#ff7eb6,#e5508f)}
+.opts{display:flex;gap:10px;margin-top:16px}
+.opts button{flex:1;background:#fff;border-radius:18px;padding:12px 8px;font-weight:700;font-size:15px;box-shadow:0 3px 0 #0001}
+.noromaji .kr,.noromaji .rm{display:none}
+/* Pillen / Tabs */
+.tabs{display:flex;gap:8px;margin:2px 0 12px;flex-wrap:wrap}
+.tabs button{flex:1;min-width:110px;background:#fff;border-radius:16px;padding:11px 8px;font-weight:800;font-size:16px;box-shadow:0 3px 0 #0001}
+.tabs button.on{background:var(--ink);color:#fff}
+/* Zeichen-Raster */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:10px}
+.kc{background:#fff;border-radius:20px;padding:8px 2px 6px;display:flex;flex-direction:column;align-items:center;position:relative;box-shadow:0 4px 0 #0001;min-height:92px}
+.kc:active{transform:translateY(3px)}
+.kc .kk{font-family:var(--jp);font-size:42px;line-height:1.1;font-weight:700}
+.kc .kr{font-size:15px;font-weight:700;color:#6b7280}
+.kc .st{position:absolute;top:3px;right:6px;font-size:14px}
+.kc.h{border-bottom:5px solid var(--red)} .kc.k{border-bottom:5px solid var(--sky)}
+/* Detail */
+#detail{position:fixed;inset:0;z-index:50;background:#0007;display:none;align-items:flex-end;justify-content:center}
+#detail.on{display:flex}
+.sheet{background:var(--bg);width:min(560px,100%);max-height:94vh;overflow:auto;border-radius:30px 30px 0 0;padding:16px 16px 26px}
+.sheet .row{display:flex;gap:12px;align-items:center}
+.bigchar{font-family:var(--jp);font-size:112px;line-height:1;font-weight:700;background:#fff;border-radius:28px;padding:12px 22px;box-shadow:0 5px 0 #0001;min-width:150px;text-align:center}
+.say{font-size:19px;font-weight:700;line-height:1.3}
+.say b{font-size:26px}
+.pic{background:#fff;border-radius:24px;padding:12px;margin-top:12px;display:flex;gap:14px;align-items:center}
+.pic .e{font-size:64px;line-height:1}
+.pic .w{font-family:var(--jp);font-size:26px;font-weight:700}
+.pic .s{font-size:15px;color:#555}
+.mn{background:#fff3c4;border-radius:20px;padding:12px 14px;margin-top:12px;font-size:17px;line-height:1.35}
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{flex:1;min-width:120px;border-radius:18px;padding:14px 10px;font-weight:800;font-size:17px;color:#fff;box-shadow:0 4px 0 #0003}
+.btn:active{transform:translateY(3px)}
+.b-red{background:var(--red)} .b-sky{background:#2f80ed} .b-mint{background:var(--mint)} .b-plum{background:var(--plum)} .b-grey{background:#8d99ae}
+.sq{width:56px;height:56px;border-radius:18px;background:#fff;font-size:26px;box-shadow:0 4px 0 #0001}
+/* Nachmalen */
+.strip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 10px}
+.strip button{flex:0 0 auto;width:52px;height:52px;border-radius:15px;background:#fff;font-family:var(--jp);font-size:28px;font-weight:700;box-shadow:0 3px 0 #0001}
+.strip button.on{background:var(--ink);color:#fff}
+.tinfo{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 8px;font-size:18px;font-weight:700}
+.board{--bw:320px;position:relative;width:min(92vw,50vh,520px);aspect-ratio:1/1;margin:0 auto;background:#fff;border-radius:26px;box-shadow:0 5px 0 #0002;overflow:hidden;
+  background-image:linear-gradient(90deg,transparent calc(50% - 1px),#ffb3bd calc(50% - 1px),#ffb3bd calc(50% + 1px),transparent calc(50% + 1px)),linear-gradient(0deg,transparent calc(50% - 1px),#ffb3bd calc(50% - 1px),#ffb3bd calc(50% + 1px),transparent calc(50% + 1px));
+  border:3px solid #ffb3bd}
+.ghost{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--jp);font-weight:700;font-size:calc(var(--bw)*.78);color:rgba(60,70,120,.17);pointer-events:none;line-height:1}
+.ghost.off{display:none}
+#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+.tools{display:flex;gap:8px;justify-content:center;align-items:center;margin-top:12px;flex-wrap:wrap}
+.sw{width:42px;height:42px;border-radius:50%;border:4px solid #fff;box-shadow:0 2px 0 #0003}
+.sw.on{outline:4px solid var(--ink)}
+.sz{width:46px;height:46px;border-radius:14px;background:#fff;box-shadow:0 3px 0 #0001;display:flex;align-items:center;justify-content:center}
+.sz i{display:block;background:var(--ink);border-radius:50%}
+.sz.on{background:var(--sun)}
+/* Übersetzer */
+textarea{width:100%;font-family:var(--ui);font-size:24px;padding:14px;border-radius:20px;border:3px solid #ffc2c8;background:#fff;color:var(--ink);resize:none;user-select:text;-webkit-user-select:text}
+textarea:focus{outline:none;border-color:var(--red)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chips button{background:#fff;border-radius:16px;padding:8px 14px;font-weight:700;font-size:16px;box-shadow:0 3px 0 #0001}
+.res{background:#fff;border-radius:24px;padding:14px;margin-top:10px;box-shadow:0 4px 0 #0001}
+.res h4{margin:0 0 6px;font-size:15px;color:#6b7280}
+.syl{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end}
+.syl .c{display:flex;flex-direction:column;align-items:center;background:#fff3f4;border-radius:14px;padding:6px 10px;min-width:48px}
+.syl .c b{font-family:var(--jp);font-size:38px;line-height:1.1}
+.syl .c span{font-size:14px;font-weight:700;color:#6b7280}
+.syl .gap{width:16px}
+.note{font-size:14px;color:#555;margin-top:8px;line-height:1.35}
+.wrow{display:flex;align-items:center;gap:12px;padding:8px 4px;border-bottom:2px dashed #eee}
+.wrow:last-child{border:0}
+.wrow .e{font-size:38px}
+.wrow .j{font-family:var(--jp);font-size:24px;font-weight:700}
+/* Spiele */
+.gm{display:grid;gap:12px}
+.gm .tile{min-height:92px;flex-direction:row;justify-content:flex-start;padding:12px 18px;font-size:20px;text-align:left;gap:14px}
+.gm .tile .em{font-size:40px}
+.prog{height:14px;background:#fff;border-radius:10px;overflow:hidden;margin-bottom:12px}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--sun),var(--red));width:0;transition:width .3s}
+.q{background:#fff;border-radius:26px;padding:16px;text-align:center;box-shadow:0 4px 0 #0001;min-height:190px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.q .bigpic{font-size:84px;line-height:1}
+.q .bigk{font-family:var(--jp);font-size:100px;line-height:1.05;font-weight:700}
+.q .gap{font-family:var(--jp);font-size:44px;font-weight:700}
+.q .hole{display:inline-block;min-width:1.2em;border-radius:12px;background:var(--sun);color:var(--ink)}
+.q .hint{font-size:16px;color:#555}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.ans button{background:#fff;border-radius:22px;min-height:104px;box-shadow:0 5px 0 #0002;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:700;transition:transform .1s,background .15s}
+.ans button .k{font-family:var(--jp);font-size:58px;line-height:1.1;font-weight:700}
+.ans button .p{font-size:56px;line-height:1.1}
+.ans button .w{font-family:var(--jp);font-size:16px;color:#555}
+.ans button.ok{background:#b9f6ca;transform:scale(1.04)}
+.ans button.no{background:#ffcdd2;animation:shake .35s}
+.ans button:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mc{aspect-ratio:3/4;border-radius:18px;background:linear-gradient(160deg,#7b4bd8,#4cc9f0);font-size:36px;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 0 #0003}
+.mc.up{background:#fff;color:var(--ink)}
+.mc.done{background:#b9f6ca;color:var(--ink)}
+.mc .jp{font-size:40px;font-weight:700}
+.mc .pe{font-size:44px}
+.end{text-align:center;padding:26px 8px}
+.end .big{font-size:70px}
+/* Tipps */
+.card{background:#fff;border-radius:24px;padding:14px 16px;margin-bottom:12px;box-shadow:0 4px 0 #0001;line-height:1.4;font-size:17px}
+.card h3{margin:0 0 6px;font-size:20px}
+.card ul,.card ol{margin:6px 0 0;padding-left:22px}
+.plan{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;align-items:center}
+.plan b.jp{font-size:22px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(30px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:18px;
+  font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:200;max-width:88vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.fx{position:fixed;z-index:150;pointer-events:none;font-size:30px;animation:fly 1.1s ease-out forwards}
+@keyframes fly{from{transform:translate(0,0) scale(.6);opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(1.3) rotate(var(--r));opacity:0}}
+
+/* ===== Start-Animation (ca. 3 Sekunden) ===== */
+.introscene{position:fixed;inset:0;z-index:300;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 42%,#ffb347 0,#ff6b4a 22%,#e63946 46%,#3a1c71 100%)}
+.introscene .rays{position:absolute;left:50%;top:42%;width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;
+  background:repeating-conic-gradient(rgba(255,255,255,.13) 0 6deg,transparent 6deg 14deg);animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(30deg)}}
+.introscene .petal{position:absolute;top:-10%;font-size:26px;animation:fall 3s linear infinite}
+@keyframes fall{to{transform:translateY(120vh) rotate(360deg)}}
+.hero{position:relative;height:74vh;max-height:760px;max-width:92vw;overflow:visible;filter:drop-shadow(0 12px 0 rgba(0,0,0,.18))}
+.hero .in{animation:heroIn .75s cubic-bezier(.2,1.5,.4,1) .25s both}
+@keyframes heroIn{from{transform:translateY(130px) scale(.6);opacity:0}}
+.hero .katana{transform-origin:248px 148px;transform:rotate(-128deg);animation:swing .26s cubic-bezier(.5,0,.8,.5) 1.72s both}
+@keyframes swing{from{transform:rotate(38deg)}}
+.hero .trail{stroke-dasharray:640;stroke-dashoffset:0;animation:trail .3s ease-out 1.78s both}
+@keyframes trail{from{stroke-dashoffset:640}}
+.hero .band{animation:flutter .5s ease-in-out infinite alternate;transform-origin:202px 114px}
+@keyframes flutter{to{transform:rotate(7deg)}}
+.hero .blink{animation:blink 2.2s infinite;transform-origin:150px 146px}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.introscene .title{position:absolute;left:0;right:0;bottom:6vh;text-align:center;color:#fff;animation:pop .5s cubic-bezier(.2,1.6,.4,1) 1.0s both}
+@keyframes pop{from{transform:scale(.2);opacity:0}}
+.introscene .title b{display:block;font-family:var(--jp);font-size:min(16vw,84px);letter-spacing:.05em;text-shadow:0 5px 0 #0004,0 0 24px #ffd23f}
+.introscene .title span{font-size:min(6vw,26px);font-weight:800;text-shadow:0 3px 0 #0004}
+.introscene .skip{position:absolute;right:14px;top:max(12px,env(safe-area-inset-top));color:#fff;font-size:14px;font-weight:700;opacity:.8}
+.frozen,.frozen *{animation:none!important}
+.cutA,.cutB{transition:transform .9s cubic-bezier(.55,0,.9,.45),opacity .9s ease-in}
+.cutA{clip-path:polygon(0 0,100% 0,100% 28%,0 72%)}
+.cutB{clip-path:polygon(100% 28%,100% 100%,0 100%,0 72%)}
+.cutA.go{transform:translate(-9%,-15%) rotate(-6deg);opacity:0}
+.cutB.go{transform:translate(9%,15%) rotate(6deg);opacity:0}
+#cutline{position:fixed;inset:0;z-index:301;pointer-events:none;width:100%;height:100%}
+#cutline line{stroke:#fff;stroke-width:7;stroke-linecap:round;filter:drop-shadow(0 0 10px #fff) drop-shadow(0 0 22px #ffd23f);stroke-dasharray:3000;stroke-dashoffset:3000;animation:cut .22s ease-out forwards,cutfade .5s .22s forwards}
+@keyframes cut{to{stroke-dashoffset:0}}
+@keyframes cutfade{to{opacity:0}}
+#flash{position:fixed;inset:0;z-index:302;background:#fff;opacity:0;pointer-events:none;animation:fl .35s ease-out}
+@keyframes fl{0%{opacity:.85}100%{opacity:0}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top">
+    <button class="ic" id="back" hidden aria-label="Zurück">⬅️</button>
+    <div id="title">にほんご Kids</div>
+    <div id="stars">⭐ 0</div>
+  </div>
+  <main>
+    <!-- START -->
+    <section class="screen on" id="s-home">
+      <div class="hello">
+        <div class="big">🥷</div>
+        <p><b>Konnichiwa!</b> <span class="jp">こんにちは</span><br>Wir lernen zusammen Japanisch. Such dir was aus!</p>
+      </div>
+      <div class="tiles">
+        <button class="tile t1" data-go="folder"><span class="em">📚</span>Zeichen-Ordner<small>Hiragana &amp; Katakana</small></button>
+        <button class="tile t2" data-go="trace"><span class="em">✏️</span>Nachmalen<small>mit Finger malen</small></button>
+        <button class="tile t3" data-go="games"><span class="em">🎮</span>Spiele<small>Bilder antippen</small></button>
+        <button class="tile t4" data-go="trans"><span class="em">🔤</span>Übersetzer<small>ABC → Japanisch</small></button>
+        <button class="tile t5" data-go="words"><span class="em">🗣️</span>Wörter-Welt<small>Tiere, Zahlen, Farben …</small></button>
+        <button class="tile t6" data-go="tips"><span class="em">💡</span>Tipps<small>Schreiben &amp; Lernplan</small></button>
+      </div>
+      <div class="opts">
+        <button id="optRomaji">🔤 Lautschrift: an</button>
+        <button id="optSound">🔊 Ton: an</button>
+      </div>
+    </section>
+
+    <!-- ORDNER -->
+    <section class="screen" id="s-folder">
+      <div class="tabs" id="f-script">
+        <button data-v="h">あ Hiragana</button><button data-v="k">ア Katakana</button>
+      </div>
+      <div class="tabs" id="f-group">
+        <button data-v="b">Grundzeichen</button><button data-v="d">Mit Strichen ゛ ゜</button>
+      </div>
+      <div class="note" id="f-note" style="margin:0 0 10px"></div>
+      <div class="grid" id="f-grid"></div>
+    </section>
+
+    <!-- NACHMALEN -->
+    <section class="screen" id="s-trace">
+      <div class="tabs" id="t-script"><button data-v="h">あ Hiragana</button><button data-v="k">ア Katakana</button></div>
+      <div class="strip" id="t-strip"></div>
+      <div class="tinfo"><button class="sq" id="t-prev">◀</button><span id="t-label"></span><button class="sq" id="t-next">▶</button><button class="sq" id="t-say">🔊</button></div>
+      <div class="board" id="board"><div class="ghost jp" id="ghost"></div><canvas id="cv"></canvas></div>
+      <div class="tools" id="t-colors"></div>
+      <div class="tools">
+        <button class="sz" data-s="7"><i style="width:7px;height:7px"></i></button>
+        <button class="sz" data-s="12"><i style="width:13px;height:13px"></i></button>
+        <button class="sz" data-s="20"><i style="width:22px;height:22px"></i></button>
+        <button class="sq" id="t-help" title="Vorlage an/aus">👻</button>
+        <button class="sq" id="t-undo" title="Rückgängig">↩️</button>
+        <button class="sq" id="t-clear" title="Alles löschen">🧽</button>
+      </div>
+      <div class="btns"><button class="btn b-mint" id="t-done">✔ Fertig!</button></div>
+      <div class="note" style="text-align:center">Male die graue Vorlage nach: <b>von oben nach unten</b>, <b>von links nach rechts</b>. Mit 👻 kannst du die Vorlage ausblenden und es aus dem Kopf versuchen!</div>
+    </section>
+
+    <!-- ÜBERSETZER -->
+    <section class="screen" id="s-trans">
+      <div class="card" style="margin-bottom:8px">Schreib dein Wort oder deinen Namen mit unseren Buchstaben – ich zeige dir, wie man es auf Japanisch schreibt.</div>
+      <textarea id="tr-in" rows="2" maxlength="60" placeholder="z. B. Anna, Mama, Hund …" autocapitalize="words" autocomplete="off" spellcheck="false"></textarea>
+      <div class="chips" id="tr-chips"></div>
+      <div class="tabs" id="tr-script"><button data-v="k">ア Katakana (für Namen)</button><button data-v="h">あ Hiragana</button></div>
+      <div class="res" id="tr-out"><h4>So schreibt man es:</h4><div class="syl" id="tr-syl"></div>
+        <div class="btns"><button class="btn b-sky" id="tr-say">🔊 Vorlesen</button><button class="btn b-plum" id="tr-trace">✏️ Nachmalen</button></div></div>
+      <div class="res" id="tr-dict" style="display:none"><h4>Das heißt auf Japanisch:</h4><div id="tr-words"></div></div>
+      <div class="note">Hinweis: Japanisch hat weniger Laute als Deutsch. Darum klingt dein Name auf Japanisch manchmal ein bisschen anders. Namen und Fremdwörter schreibt man meistens mit Katakana.</div>
+    </section>
+
+    <!-- SPIELE -->
+    <section class="screen" id="s-games">
+      <div id="g-menu">
+        <div class="tabs" id="g-script"><button data-v="h">あ Hiragana</button><button data-v="k">ア Katakana</button><button data-v="both">あア Beides</button></div>
+        <div class="gm">
+          <button class="tile t1" data-game="pic2k"><span class="em">🖼️</span><span>Bild → Zeichen<br><small>Welches Zeichen fehlt im Wort?</small></span></button>
+          <button class="tile t2" data-game="k2pic"><span class="em">🔠</span><span>Zeichen → Bild<br><small>Welches Bild passt dazu?</small></span></button>
+          <button class="tile t3" data-game="ear"><span class="em">👂</span><span>Hör genau hin<br><small>Welches Zeichen hörst du?</small></span></button>
+          <button class="tile t4" data-game="mem"><span class="em">🃏</span><span>Memory<br><small>Zeichen &amp; Bild finden</small></span></button>
+        </div>
+      </div>
+      <div id="g-play" style="display:none"></div>
+    </section>
+
+    <!-- WÖRTER -->
+    <section class="screen" id="s-words">
+      <div class="tabs" id="w-cat"></div>
+      <div id="w-list" class="card" style="padding:6px 12px"></div>
+    </section>
+
+    <!-- TIPPS -->
+    <section class="screen" id="s-tips">
+      <div class="card"><h3>🧠 So lernst du am besten</h3>
+        <ul><li><b>Jeden Tag ein bisschen</b> – 5 bis 10 Minuten sind besser als eine Stunde am Wochenende.</li>
+        <li><b>Laut mitsprechen</b> – tippe auf 🔊 und sprich nach.</li>
+        <li><b>Mit Bildern merken</b> – jedes Zeichen hat ein Bild und eine kleine Geschichte.</li>
+        <li><b>Mit der Hand malen</b> – so bleibt das Zeichen im Kopf.</li>
+        <li><b>Spielen!</b> – Spiele machen Spaß und üben ganz nebenbei.</li></ul></div>
+      <div class="card"><h3>✍️ Schreib-Regeln</h3>
+        <ol><li>Fang <b>oben</b> an und male nach <b>unten</b>.</li>
+        <li>Male <b>von links nach rechts</b>.</li>
+        <li>Ein <b>Strich quer</b> kommt meistens vor dem Strich nach unten.</li>
+        <li>Eine Linie ist ein Strich: Hebe den Stift erst ab, wenn die Linie fertig ist.</li></ol></div>
+      <div class="card"><h3>🔤 Drei Schriften</h3>
+        <p style="margin:0"><b class="jp">ひらがな</b> Hiragana: rund und weich. Für alle japanischen Wörter.<br>
+        <b class="jp">カタカナ</b> Katakana: eckig und spitz. Für Namen und Fremdwörter, z. B. <span class="jp">アイス</span> = Eis.<br>
+        <b class="jp">漢字</b> Kanji: Bilder-Zeichen. Die lernt man später.</p></div>
+      <div class="card"><h3>📅 Lernplan: ein Zeilen-Päckchen pro Tag</h3>
+        <div class="plan" id="plan"></div>
+        <p class="note">Nimm dir jeden Tag eine Zeile: anschauen, sprechen, nachmalen, ein Spiel spielen. Fertig!</p></div>
+      <div class="card"><h3>👪 Für Eltern</h3>
+        <p style="margin:0;font-size:15px">Die App braucht kein Internet, zeigt keine Werbung und speichert nur die Sterne auf dem Gerät. Für die Sprachausgabe nutzt die App die Android-Sprachausgabe. Falls nichts zu hören ist: Einstellungen → Sprachausgabe → Japanisch (Sprachdaten) installieren.</p></div>
+    </section>
+  </main>
+</div>
+
+<!-- Detail-Blatt -->
+<div id="detail"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+
+<!-- Start-Animation -->
+<div id="intro" class="introscene">
+  <div class="rays"></div>
+  <svg id="hero" class="hero" viewBox="-80 -80 460 520" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+    <defs>
+      <linearGradient id="blade" x1="0" x2="1"><stop offset="0" stop-color="#cfd8e3"/><stop offset=".5" stop-color="#ffffff"/><stop offset="1" stop-color="#9fb0c4"/></linearGradient>
+    </defs>
+    <ellipse cx="150" cy="414" rx="96" ry="12" fill="#0003"/>
+    <g class="in">
+      <!-- Beine / Hakama -->
+      <path d="M96 306 L204 306 L226 408 L160 408 L150 344 L140 408 L74 408 Z" fill="#2f4b9a"/>
+      <path d="M150 344 L150 400" stroke="#233a7a" stroke-width="3"/>
+      <ellipse cx="108" cy="410" rx="30" ry="9" fill="#2b2d42"/><ellipse cx="192" cy="410" rx="30" ry="9" fill="#2b2d42"/>
+      <!-- linker Arm -->
+      <path d="M106 208 Q64 244 92 284" stroke="#fff" stroke-width="28" stroke-linecap="round" fill="none"/>
+      <circle cx="92" cy="288" r="13" fill="#ffdcbc"/>
+      <!-- Oberkörper -->
+      <path d="M102 196 L198 196 L208 304 L92 304 Z" fill="#ffffff"/>
+      <path d="M128 196 L150 244 L172 196" stroke="#cbd5e1" stroke-width="5" fill="none" stroke-linejoin="round"/>
+      <rect x="90" y="288" width="120" height="22" rx="6" fill="#e63946"/>
+      <path d="M150 296 L132 330 L146 326 L150 340 L156 324 L170 332 Z" fill="#c81d3a"/>
+      <!-- Hals + Kopf -->
+      <rect x="138" y="176" width="24" height="24" fill="#f3c8a2"/>
+      <circle cx="150" cy="130" r="54" fill="#ffdcbc"/>
+      <path d="M96 118 L86 80 L112 90 L106 52 L136 72 L150 44 L164 72 L194 52 L188 90 L214 80 L204 118 Z" fill="#1d1d2b"/>
+      <path d="M118 74 L128 92 M172 74 L162 92" stroke="#3b3b55" stroke-width="4" stroke-linecap="round"/>
+      <!-- Stirnband -->
+      <path d="M98 106 L202 106 L202 124 L98 124 Z" fill="#fff"/>
+      <circle cx="150" cy="115" r="7.5" fill="#e63946"/>
+      <g class="band"><path d="M202 110 L254 92 L240 122 Z" fill="#fff"/><path d="M202 118 L250 136 L228 148 Z" fill="#fff"/></g>
+      <!-- Gesicht -->
+      <g class="blink">
+        <ellipse cx="127" cy="148" rx="10" ry="13" fill="#222233"/><ellipse cx="173" cy="148" rx="10" ry="13" fill="#222233"/>
+        <circle cx="130.5" cy="142" r="4.5" fill="#fff"/><circle cx="176.5" cy="142" r="4.5" fill="#fff"/>
+        <circle cx="124" cy="154" r="2.2" fill="#fff"/><circle cx="170" cy="154" r="2.2" fill="#fff"/>
+      </g>
+      <path d="M112 130 L140 136 M188 130 L160 136" stroke="#1d1d2b" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="108" cy="165" r="7" fill="#ff9aa2" opacity=".75"/><circle cx="192" cy="165" r="7" fill="#ff9aa2" opacity=".75"/>
+      <path d="M134 166 Q150 188 166 166 Z" fill="#7a2230"/><path d="M143 176 Q150 182 157 176 Q150 172 143 176Z" fill="#ff7a8a"/>
+      <!-- rechter Arm (hält das Katana) -->
+      <path d="M196 208 L240 176 L250 150" stroke="#fff" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </g>
+    <!-- Schwung-Spur -->
+    <path class="trail" d="M379 -8 A204 204 0 0 0 81 265" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" opacity=".85"/>
+    <path class="trail" d="M379 -8 A204 204 0 0 0 81 265" fill="none" stroke="#ffe36e" stroke-width="5" stroke-linecap="round"/>
+    <!-- Katana -->
+    <g class="katana">
+      <rect x="242" y="146" width="12" height="44" rx="3" fill="#2b2d42"/>
+      <path d="M242 156 L254 164 M242 166 L254 174 M242 176 L254 184" stroke="#ffd23f" stroke-width="2.5"/>
+      <ellipse cx="248" cy="144" rx="19" ry="6" fill="#ffd23f" stroke="#c9a227" stroke-width="2"/>
+      <path d="M243 140 L243 -44 L248 -60 L253 140 Z" fill="url(#blade)" stroke="#8795a8" stroke-width="1.4"/>
+      <path d="M248 138 L248 -50" stroke="#e6edf5" stroke-width="1.5"/>
+      <circle cx="248" cy="148" r="14" fill="#ffdcbc"/>
+    </g>
+  </svg>
+  <div class="title"><b>にほんご</b><span>Nihongo Kids</span></div>
+  <div class="skip">Tippen zum Überspringen ›</div>
+</div>
+
+<script>
+'use strict';
+/* =========================================================
+   Daten: Zeichen | Romaji | Aussprache (deutsch) | Wort | Wort-Romaji | Deutsch | Bild | Merkhilfe
+   ========================================================= */
+const D_HB=`あ|a||あひる|ahiru|Ente|🦆|Wie ein Apfel mit Stiel. Er ruft laut „A!“
+い|i||いぬ|inu|Hund|🐶|Zwei Striche stehen wie zwei Hunde-Ohren nebeneinander: „i-i!“
+う|u||うま|uma|Pferd|🐴|Ein Hut über einem Bogen: „Uuuh“ wie ein Uhu.
+え|e||えび|ebi|Garnele|🦐|Ein Vogel fliegt los: „E!“
+お|o||おにぎり|onigiri|Reisball|🍙|Ein Mädchen staunt mit offenem Mund: „Ooh!“
+か|ka||かに|kani|Krabbe|🦀|Wie eine Krabbe mit Schere: „Ka!“
+き|ki||きつね|kitsune|Fuchs|🦊|Das ist ein Schlüssel, englisch „key“ = „ki“.
+く|ku||くま|kuma|Bär|🐻|Ein Kuckucks-Schnabel: „Ku-ku!“
+け|ke||けむし|kemushi|Raupe|🐛|Ein Fass voller Käse: „Ke“.
+こ|ko||こあら|koala|Koala|🐨|Zwei Striche wie die Arme vom Koala: „Ko“.
+さ|sa||さかな|sakana|Fisch|🐟|Ein Säbel: „Sa-sa“, schwingt durch die Luft.
+し|shi|schi|しか|shika|Hirsch|🦌|Ein Angelhaken. Der Fisch ruft: „Schi!“
+す|su||すいか|suika|Wassermelone|🍉|Ein Mann schlürft Suppe: „Su“.
+せ|se||せかい|sekai|Welt|🌍|Ein Mund mit Zunge: „Se“.
+そ|so||そら|sora|Himmel|☁️|Ein Blitz am Himmel: „So!“
+た|ta||たこ|tako|Krake|🐙|Ein „t“ und ein „a“ stehen zusammen: „Ta“.
+ち|chi|tschi|ちず|chizu|Landkarte|🗺️|Wie eine 5: „Tschi“, tschüss!
+つ|tsu|tsu|つき|tsuki|Mond|🌙|Eine Welle rollt heran: „Tsu“.
+て|te||てがみ|tegami|Brief|✉️|Ein Telefon-Haken: „Te“.
+と|to||とり|tori|Vogel|🐦|Ein Zeh mit einem Splitter: „To!“
+な|na||なし|nashi|Birne|🍐|Eine Nonne kniet und betet: „Na“.
+に|ni||にわとり|niwatori|Huhn|🐔|Zwei Striche wie die Zahl 2: „ni“ heißt auch „zwei“.
+ぬ|nu||ぬいぐるみ|nuigurumi|Kuscheltier|🧸|Nudeln mit Knoten: „Nu“.
+ね|ne||ねこ|neko|Katze|🐱|Eine Katze mit Schwänzchen: „Ne-ko“.
+の|no||のこぎり|nokogiri|Säge|🪚|Ein Kringel wie „No!“, das Nein-Zeichen.
+は|ha||はな|hana|Blume|🌸|Ein Mann lacht: „Ha-ha-ha!“
+ひ|hi||ひこうき|hikōki|Flugzeug|✈️|Ein breites Lächeln: „Hi-hi!“
+ふ|fu|fu (leise, wie Pusten)|ふね|fune|Schiff|🚢|Der Berg Fuji mit Wolken: „Fu“.
+へ|he||へび|hebi|Schlange|🐍|Ein kleiner Hügel: „He, hoch!“
+ほ|ho||ほし|hoshi|Stern|⭐|Der Weihnachtsmann lacht: „Ho-ho-ho!“
+ま|ma||まど|mado|Fenster|🪟|Mama mit Schürze: „Ma“.
+み|mi||みかん|mikan|Mandarine|🍊|Eine Katze ruft „Mi-au!“
+む|mu||むし|mushi|Insekt|🐞|Die Kuh macht „Muuu“.
+め|me||めがね|megane|Brille|👓|Ein Auge schaut: „Me“, „mein Auge“.
+も|mo||もも|momo|Pfirsich|🍑|Ein Haken fischt „mo-hr“, die Möhre.
+や|ya||やま|yama|Berg|⛰️|Ein Yak mit Hörnern: „Ya!“
+ゆ|yu||ゆき|yuki|Schnee|❄️|Ein Fisch schwimmt im Glas: „Yu“.
+よ|yo||よる|yoru|Nacht|🌃|Ein Jo-Jo am Faden: „Yo“.
+ら|ra|ra (weiches r, fast wie l)|らくだ|rakuda|Kamel|🐪|Eine Rakete startet: „Ra!“
+り|ri|ri (weiches r)|りんご|ringo|Apfel|🍎|Zwei Schilfrohre am Ufer: „Ri“.
+る|ru|ru (weiches r)|くるま|kuruma|Auto|🚗|Eine Straße mit Schleife: „Ru“.
+れ|re|re (weiches r)|れもん|remon|Zitrone|🍋|Ein Reh mit Schwanz: „Re“.
+ろ|ro|ro (weiches r)|ろうそく|rōsoku|Kerze|🕯️|Eine Straße, englisch „road“ = „ro“.
+わ|wa||わに|wani|Krokodil|🐊|Ein Wal taucht auf: „Wa!“
+を|wo|o|みずをのむ|mizu o nomu|Wasser trinken|💧|Ein kleines Wörtchen. Es wird „o“ gesprochen und steht hinter dem Ding.
+ん|n||ほん|hon|Buch|📖|Das einzige Zeichen ohne Vokal: nur „n“.`;
+
+const D_HD=`が|ga||がっこう|gakkō|Schule|🏫
+ぎ|gi||ぎゅうにゅう|gyūnyū|Milch|🥛
+ぐ|gu||ぐるぐる|guruguru|rundherum|🌀
+げ|ge||げんき|genki|munter, gesund|😄
+ご|go||ごはん|gohan|Reis|🍚
+ざ|za||ざっし|zasshi|Zeitschrift|📰
+じ|ji|dschi|じてんしゃ|jitensha|Fahrrad|🚲
+ず|zu|dsu|すず|suzu|Glöckchen|🔔
+ぜ|ze||かぜ|kaze|Wind|🌬️
+ぞ|zo||ぞう|zō|Elefant|🐘
+だ|da||だんご|dango|Dango (Reiskloß)|🍡
+ぢ|ji|dschi|ちぢむ|chijimu|schrumpfen|🤏
+づ|zu|dsu|つづく|tsuzuku|weitergehen|➡️
+で|de||でんしゃ|densha|Zug|🚃
+ど|do||どうぶつ|dōbutsu|Tier|🐾
+ば|ba||ばなな|banana|Banane|🍌
+び|bi||かびん|kabin|Vase|🏺
+ぶ|bu||ぶどう|budō|Traube|🍇
+べ|be||たべる|taberu|essen|🍽️
+ぼ|bo||ぼうし|bōshi|Mütze|🧢
+ぱ|pa||ぱん|pan|Brot|🍞
+ぴ|pi||ぴあの|piano|Klavier|🎹
+ぷ|pu||ぷりん|purin|Pudding|🍮
+ぺ|pe||ぺんぎん|pengin|Pinguin|🐧
+ぽ|po||ぽすと|posuto|Briefkasten|📮`;
+
+const D_KB=`ア|a||アイス|aisu|Eis|🍦|Eine Axt mit Stiel: „A!“
+イ|i||イルカ|iruka|Delfin|🐬|Zwei Striche wie Igel-Stacheln: „I“.
+ウ|u||ウサギ|usagi|Hase|🐰|Ein Hase mit einem Ohr und einem Hut: „U“.
+エ|e||エンピツ|enpitsu|Bleistift|✏️|Ein Eisenträger wie ein großes „E“.
+オ|o||オムライス|omuraisu|Omelett-Reis|🍳|Ein Ofen mit langem Rohr: „O“.
+カ|ka||カメラ|kamera|Kamera|📷|Ein Arm mit Kraft: „Ka!“
+キ|ki||キリン|kirin|Giraffe|🦒|Ein Schlüssel mit Bart: „Ki“.
+ク|ku||クッキー|kukkī|Keks|🍪|Ein Kuckucks-Schnabel: „Ku“.
+ケ|ke||ケーキ|kēki|Kuchen|🍰|Ein Kegel mit Fähnchen: „Ke“.
+コ|ko||コーヒー|kōhī|Kaffee|☕|Eine Ecke wie ein Koffer: „Ko“.
+サ|sa||サッカー|sakkā|Fußball|⚽|Drei Striche wie eine Sandburg: „Sa“.
+シ|shi|schi|シャツ|shatsu|Hemd|👕|Drei Striche lächeln von der Seite: „Schi“. Die Striche liegen flach.
+ス|su||スープ|sūpu|Suppe|🍲|Ein Löffel in der Suppe: „Su“.
+セ|se||セーター|sētā|Pullover|🧥|Ein Sessel mit Lehne: „Se“.
+ソ|so||ソファ|sofa|Sofa|🛋️|Ein Kissen liegt schräg auf dem Sofa: „So“. Der kurze Strich steht.
+タ|ta||タクシー|takushī|Taxi|🚕|Das Taxi-Schild auf dem Dach: „Ta“.
+チ|chi|tschi|チーズ|chīzu|Käse|🧀|Ein Stück Käse mit Löchern: „Tschi“.
+ツ|tsu|tsu|ツリー|tsurī|Weihnachtsbaum|🎄|Drei Striche fallen von oben: „Tsu“. Sie stehen steil.
+テ|te||テレビ|terebi|Fernseher|📺|Eine Antenne auf dem Fernseher: „Te“.
+ト|to||トマト|tomato|Tomate|🍅|Ein Pfahl mit einem Ast: „To“.
+ナ|na||ナッツ|nattsu|Nuss|🥜|Ein Kreuz aus Nägeln: „Na“.
+ニ|ni||ニンジン|ninjin|Karotte|🥕|Zwei Striche = die Zahl 2 (ni).
+ヌ|nu||ヌードル|nūdoru|Nudeln|🍜|Nudeln mit Knoten: „Nu“.
+ネ|ne||ネクタイ|nekutai|Krawatte|👔|Ein Fischernetz hängt am Pfahl: „Ne“.
+ノ|no||ノート|nōto|Heft|📓|Nur ein Strich: „No“.
+ハ|ha||ハンバーガー|hanbāgā|Hamburger|🍔|Ein Hausdach: „Ha“.
+ヒ|hi||ヒヨコ|hiyoko|Küken|🐥|Ein Schnabel, der „Hi-hi“ piept.
+フ|fu|fu (leise, wie Pusten)|フォーク|fōku|Gabel|🍴|Ein Fuß mit Socke: „Fu“.
+ヘ|he||ヘリコプター|herikoputā|Hubschrauber|🚁|Wie das Hiragana へ, nur eckiger: „He“.
+ホ|ho||ホテル|hoteru|Hotel|🏨|Ein Kreuz mit zwei Punkten: „Ho“.
+マ|ma||マスク|masuku|Maske|😷|Ein Mast mit Segel: „Ma“.
+ミ|mi||ミルク|miruku|Milch|🥛|Drei Krallen kratzen: „Mi-au“.
+ム|mu||ゲーム|gēmu|Spiel|🎮|Ein Kuhkopf mit Nase: „Muh“.
+メ|me||メロン|meron|Melone|🍈|Zwei Messer gekreuzt: „Me“.
+モ|mo||モノレール|monorēru|Einschienenbahn|🚝|Ein Mond mit Haken: „Mo“.
+ヤ|ya||ヤギ|yagi|Ziege|🐐|Ein Yak mit Horn: „Ya“.
+ユ|yu||ユニコーン|yunikōn|Einhorn|🦄|Ein U-förmiges Horn: „Yu“.
+ヨ|yo||ヨット|yotto|Segelboot|⛵|Ein Jo-Jo mit drei Linien: „Yo“.
+ラ|ra|ra (weiches r, fast wie l)|ラジオ|rajio|Radio|📻|Eine Rakete mit Dach: „Ra“.
+リ|ri|ri (weiches r)|リボン|ribon|Schleife|🎀|Zwei Bänder hängen herab: „Ri“.
+ル|ru|ru (weiches r)|ルビー|rubī|Rubin|💎|Ein Rubin mit zwei Kanten: „Ru“.
+レ|re|re (weiches r)|レモン|remon|Zitrone|🍋|Ein Reh-Bein: „Re“.
+ロ|ro|ro (weiches r)|ロボット|robotto|Roboter|🤖|Ein Roboter-Kopf, eckig wie ein Quadrat: „Ro“.
+ワ|wa||ワニ|wani|Krokodil|🐊|Ein Wal-Maul: „Wa“.
+ヲ|wo|o||||| Fast nie benutzt, so wie を. Es klingt wie „o“.
+ン|n||パン|pan|Brot|🍞|Ein Nagel und ein Strich: nur „n“.`;
+
+const D_KD=`ガ|ga||ガム|gamu|Kaugummi|🍬
+ギ|gi||ギター|gitā|Gitarre|🎸
+グ|gu||グローブ|gurōbu|Handschuh|🧤
+ゲ|ge||ゲーム|gēmu|Spiel|🎮
+ゴ|go||ゴリラ|gorira|Gorilla|🦍
+ザ|za||ピザ|piza|Pizza|🍕
+ジ|ji|dschi|ジュース|jūsu|Saft|🧃
+ズ|zu|dsu|ズボン|zubon|Hose|👖
+ゼ|ze||ゼリー|zerī|Wackelpudding|🍮
+ゾ|zo||ゾウ|zō|Elefant|🐘
+ダ|da||ダンス|dansu|Tanz|💃
+ヂ|ji|dschi||||
+ヅ|zu|dsu||||
+デ|de||デパート|depāto|Kaufhaus|🏬
+ド|do||ドア|doa|Tür|🚪
+バ|ba||バナナ|banana|Banane|🍌
+ビ|bi||ビーチ|bīchi|Strand|🏖️
+ブ|bu||ブーツ|būtsu|Stiefel|👢
+ベ|be||ベッド|beddo|Bett|🛏️
+ボ|bo||ボール|bōru|Ball|🏀
+パ|pa||パン|pan|Brot|🍞
+ピ|pi||ピアノ|piano|Klavier|🎹
+プ|pu||プール|pūru|Schwimmbad|🏊
+ペ|pe||ペン|pen|Stift|🖊️
+ポ|po||ポスト|posuto|Briefkasten|📮`;
+
+const WORDS={
+ 'Hallo':[['こんにちは','konnichiwa','Hallo, Guten Tag','👋'],['おはよう','ohayō','Guten Morgen','🌅'],['こんばんは','konbanwa','Guten Abend','🌆'],['おやすみ','oyasumi','Gute Nacht','😴'],['さようなら','sayōnara','Auf Wiedersehen','🙋'],['ありがとう','arigatō','Danke','🙏'],['ごめんなさい','gomen nasai','Entschuldigung','🙇'],['はい','hai','Ja','👍'],['いいえ','iie','Nein','👎'],['いただきます','itadakimasu','Guten Appetit','🍚'],['ごちそうさま','gochisōsama','Danke fürs Essen','😋'],['はじめまして','hajimemashite','Freut mich','🤝']],
+ 'Zahlen':[['いち','ichi','eins (一)','1️⃣'],['に','ni','zwei (二)','2️⃣'],['さん','san','drei (三)','3️⃣'],['よん','yon','vier (四)','4️⃣'],['ご','go','fünf (五)','5️⃣'],['ろく','roku','sechs (六)','6️⃣'],['なな','nana','sieben (七)','7️⃣'],['はち','hachi','acht (八)','8️⃣'],['きゅう','kyū','neun (九)','9️⃣'],['じゅう','jū','zehn (十)','🔟']],
+ 'Farben':[['あか','aka','rot','🔴'],['あお','ao','blau','🔵'],['きいろ','kiiro','gelb','🟡'],['みどり','midori','grün','🟢'],['しろ','shiro','weiß','⚪'],['くろ','kuro','schwarz','⚫'],['オレンジ','orenji','orange','🟠'],['むらさき','murasaki','lila','🟣'],['ちゃいろ','chairo','braun','🟤'],['ピンク','pinku','rosa','🩷']],
+ 'Tiere':[['いぬ','inu','Hund','🐶'],['ねこ','neko','Katze','🐱'],['うさぎ','usagi','Hase','🐰'],['さる','saru','Affe','🐵'],['ぶた','buta','Schwein','🐷'],['ひつじ','hitsuji','Schaf','🐑'],['うし','ushi','Kuh','🐮'],['ぞう','zō','Elefant','🐘'],['ライオン','raion','Löwe','🦁'],['パンダ','panda','Panda','🐼'],['かえる','kaeru','Frosch','🐸'],['ちょう','chō','Schmetterling','🦋'],['さかな','sakana','Fisch','🐟'],['とり','tori','Vogel','🐦']],
+ 'Essen':[['みず','mizu','Wasser','💧'],['ごはん','gohan','Reis','🍚'],['パン','pan','Brot','🍞'],['たまご','tamago','Ei','🥚'],['りんご','ringo','Apfel','🍎'],['バナナ','banana','Banane','🍌'],['ぎゅうにゅう','gyūnyū','Milch','🥛'],['アイス','aisu','Eis','🍦'],['ケーキ','kēki','Kuchen','🍰'],['おにぎり','onigiri','Reisball','🍙']],
+ 'Familie':[['おかあさん','okāsan','Mama','👩'],['おとうさん','otōsan','Papa','👨'],['おにいさん','onīsan','großer Bruder','👦'],['おねえさん','onēsan','große Schwester','👧'],['あかちゃん','akachan','Baby','👶'],['おじいさん','ojīsan','Opa','👴'],['おばあさん','obāsan','Oma','👵'],['ともだち','tomodachi','Freund / Freundin','🧑‍🤝‍🧑']]
+};
+
+/* ---------- Daten aufbereiten ---------- */
+function parse(str,t,g){
+  return str.trim().split('\n').map(l=>{
+    const p=l.split('|');
+    const c={k:p[0],r:p[1],de:p[2]||p[1],w:p[3]||'',wr:p[4]||'',wd:p[5]||'',e:p[6]||'',m:(p[7]||'').trim(),t,g};
+    if(g==='d'){
+      const base=c.k.normalize('NFD')[0];
+      const mark=/[ぱぴぷぺぽパピプペポ]/.test(c.k)?'dem kleinen Kreis ゜':'zwei Strichen ゛';
+      c.m=`Wie ${base}, aber mit ${mark}. Der Laut wird weicher: ${base} → ${c.k}.`;
+      if(/[ぢづヂヅ]/.test(c.k)) c.m+=' Klingt wie '+(c.k==='ぢ'||c.k==='ヂ'?'じ/ジ':'ず/ズ')+' und wird selten benutzt.';
+    }
+    return c;
+  });
+}
+const CH=[...parse(D_HB,'h','b'),...parse(D_HD,'h','d'),...parse(D_KB,'k','b'),...parse(D_KD,'k','d')];
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+/* ---------- Speicher ---------- */
+let store={stars:0,known:{},romaji:true,sound:true};
+try{const s=JSON.parse(localStorage.getItem('nihongo-kids')||'null');if(s)store=Object.assign(store,s);}catch(e){}
+function save(){try{localStorage.setItem('nihongo-kids',JSON.stringify(store));}catch(e){}}
+function addStar(c){store.stars++;if(c){const id=c.t+c.k;store.known[id]=(store.known[id]||0)+1;}save();showStars();}
+function showStars(){$('#stars').textContent='⭐ '+store.stars;}
+function isKnown(c){return (store.known[c.t+c.k]||0)>=3;}
+
+/* ---------- Ton ---------- */
+let AC=null,warned=false;
+function tone(seq){
+  if(!store.sound)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();let t=AC.currentTime;
+    seq.forEach(([f,d,ty])=>{const o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.value=f;
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);
+      o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+.02);t+=d*.8;});}catch(e){}
+}
+const ding=()=>tone([[660,.12],[880,.12],[1320,.22]]);
+const oops=()=>tone([[300,.18,'triangle'],[240,.25,'triangle']]);
+function swoosh(){
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+    const n=AC.sampleRate*.35,buf=AC.createBuffer(1,n,AC.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+    const s=AC.createBufferSource();s.buffer=buf;const f=AC.createBiquadFilter();f.type='bandpass';f.Q.value=2;
+    f.frequency.setValueAtTime(5000,AC.currentTime);f.frequency.exponentialRampToValueAtTime(400,AC.currentTime+.3);
+    const g=AC.createGain();g.gain.value=.5;s.connect(f);f.connect(g);g.connect(AC.destination);s.start();
+  }catch(e){}
+}
+function say(t){
+  if(!store.sound||!t)return;
+  try{
+    if(window.AndroidTTS){window.AndroidTTS.speak(t);return;}
+    if(!('speechSynthesis' in window))return toast('Dieses Gerät kann leider nicht vorlesen.');
+    const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=.75;
+    const v=speechSynthesis.getVoices().find(v=>/^ja/i.test(v.lang));
+    if(v)u.voice=v;else if(!warned&&speechSynthesis.getVoices().length){warned=true;toast('Kein japanischer Sprecher gefunden. Bitte in den Einstellungen unter Sprachausgabe Japanisch installieren.');}
+    speechSynthesis.cancel();speechSynthesis.speak(u);
+  }catch(e){}
+}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),3200);}
+function confetti(x,y,n=14){
+  const em=['⭐','🌸','✨','🎉','💮'];
+  for(let i=0;i<n;i++){const s=document.createElement('span');s.className='fx';s.textContent=rnd(em);
+    s.style.left=x+'px';s.style.top=y+'px';s.style.setProperty('--dx',(Math.random()*240-120)+'px');
+    s.style.setProperty('--dy',(Math.random()*-220-30)+'px');s.style.setProperty('--r',(Math.random()*360-180)+'deg');
+    document.body.appendChild(s);setTimeout(()=>s.remove(),1200);}
+}
+const mid=()=>[innerWidth/2,innerHeight/2];
+
+/* ---------- Navigation ---------- */
+const TITLES={home:'にほんご Kids',folder:'Zeichen-Ordner',trace:'Nachmalen',trans:'Übersetzer',games:'Spiele',words:'Wörter-Welt',tips:'Tipps'};
+let cur='home';
+function nav(n){
+  cur=n;$$('.screen').forEach(s=>s.classList.toggle('on',s.id==='s-'+n));
+  $('#title').textContent=TITLES[n];$('#back').hidden=(n==='home');
+  closeDetail();
+  if(n==='folder')renderFolder();
+  if(n==='trace')renderTrace();
+  if(n==='trans')renderTrans();
+  if(n==='games')showGameMenu();
+  if(n==='words')renderWords();
+  if(n==='tips')renderTips();
+  $('#s-'+n).scrollTop=0;
+}
+window.appBack=function(){
+  if($('#detail').classList.contains('on')){closeDetail();return true;}
+  if(cur==='games'&&G){showGameMenu();return true;}
+  if(cur!=='home'){nav('home');return true;}
+  return false;
+};
+$('#back').onclick=()=>window.appBack();
+$$('[data-go]').forEach(b=>b.onclick=()=>nav(b.dataset.go));
+function setOpts(){
+  document.body.classList.toggle('noromaji',!store.romaji);
+  $('#optRomaji').textContent='🔤 Lautschrift: '+(store.romaji?'an':'aus');
+  $('#optSound').textContent='🔊 Ton: '+(store.sound?'an':'aus');
+}
+$('#optRomaji').onclick=()=>{store.romaji=!store.romaji;save();setOpts();};
+$('#optSound').onclick=()=>{store.sound=!store.sound;save();setOpts();if(store.sound)ding();};
+function tabs(sel,get,set,after){
+  const box=$(sel);
+  const upd=()=>$$(sel+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===get()));
+  box.onclick=e=>{const b=e.target.closest('button');if(!b)return;set(b.dataset.v);upd();after&&after();};
+  upd();
+}
+
+/* ---------- Zeichen-Ordner ---------- */
+let F={t:'h',g:'b'};
+function renderFolder(){
+  tabs('#f-script',()=>F.t,v=>F.t=v,renderFolder);
+  tabs('#f-group',()=>F.g,v=>F.g=v,renderFolder);
+  $('#f-note').textContent=F.g==='b'
+    ?(F.t==='h'?'Hiragana: die runden Zeichen für japanische Wörter. Tippe auf ein Zeichen!':'Katakana: die eckigen Zeichen für Namen und Fremdwörter. Tippe auf ein Zeichen!')
+    :'Zwei kleine Striche ゛ oder ein Kreis ゜ machen den Laut weicher oder anders: か → が, は → ば → ぱ.';
+  const list=CH.filter(c=>c.t===F.t&&c.g===F.g);
+  $('#f-grid').innerHTML=list.map((c,i)=>`<button class="kc ${c.t}" data-i="${CH.indexOf(c)}"><span class="kk">${c.k}</span><span class="kr">${c.r}</span>${isKnown(c)?'<span class="st">⭐</span>':''}</button>`).join('');
+  $('#f-grid').onclick=e=>{const b=e.target.closest('.kc');if(!b)return;const c=CH[+b.dataset.i];say(c.w||c.k);openDetail(c);};
+}
+function openDetail(c){
+  const list=CH.filter(x=>x.t===c.t&&x.g===c.g),i=list.indexOf(c);
+  $('#sheet').innerHTML=`
+   <div class="row"><div class="bigchar">${c.k}</div>
+     <div class="say">So sprichst du es:<br><b>${esc(c.de)}</b><br><span class="rm" style="font-size:15px;color:#666">Lautschrift: ${esc(c.r)}</span></div></div>
+   ${c.w?`<div class="pic"><div class="e">${c.e}</div><div><div class="w">${c.w}</div><div class="s rm">${esc(c.wr)}</div><div class="s">${esc(c.wd)}</div></div></div>`:''}
+   ${c.m?`<div class="mn">💡 ${esc(c.m)}</div>`:''}
+   <div class="btns">
+     <button class="btn b-sky" id="d-s1">🔊 Zeichen</button>
+     ${c.w?'<button class="btn b-plum" id="d-s2">🔊 Wort</button>':''}
+     <button class="btn b-red" id="d-tr">✏️ Nachmalen</button>
+   </div>
+   <div class="btns"><button class="btn b-grey" id="d-prev">◀</button><button class="btn b-grey" id="d-close">Schließen</button><button class="btn b-grey" id="d-next">▶</button></div>`;
+  $('#d-s1').onclick=()=>say(c.k);
+  const s2=$('#d-s2');if(s2)s2.onclick=()=>say(c.w);
+  $('#d-tr').onclick=()=>{T.ch=c;T.script=c.t;nav('trace');};
+  $('#d-close').onclick=closeDetail;
+  $('#d-prev').onclick=()=>{const n=list[(i+list.length-1)%list.length];say(n.w||n.k);openDetail(n);};
+  $('#d-next').onclick=()=>{const n=list[(i+1)%list.length];say(n.w||n.k);openDetail(n);};
+  $('#detail').classList.add('on');
+}
+function closeDetail(){$('#detail').classList.remove('on');}
+$('#detail').onclick=e=>{if(e.target.id==='detail')closeDetail();};
+
+/* ---------- Nachmalen ---------- */
+const COLORS=['#e63946','#2f80ed','#2ec4b6','#7b4bd8','#ff9f1c','#2b2d42'];
+let T={ch:CH[0],script:'h',color:COLORS[0],size:12,strokes:[],help:true,drawing:null};
+function traceList(){const g=T.ch.t===T.script?T.ch.g:'b';return CH.filter(c=>c.t===T.script&&c.g===g&&c.k!=='ヲ');}
+function renderTrace(){
+  if(T.ch.t!==T.script)T.script=T.ch.t;
+  tabs('#t-script',()=>T.script,v=>{T.script=v;T.ch=traceList()[0];T.strokes=[];renderTrace();});
+  const list=traceList();
+  $('#t-strip').innerHTML=list.map(c=>`<button data-k="${c.k}" class="${c.k===T.ch.k?'on':''}">${c.k}</button>`).join('');
+  $('#t-strip').onclick=e=>{const b=e.target.closest('button');if(!b)return;setTraceChar(list.find(c=>c.k===b.dataset.k));};
+  $('#t-colors').innerHTML=COLORS.map(c=>`<button class="sw ${c===T.color?'on':''}" data-c="${c}" style="background:${c}"></button>`).join('');
+  $('#t-colors').onclick=e=>{const b=e.target.closest('.sw');if(!b)return;T.color=b.dataset.c;$$('#t-colors .sw').forEach(x=>x.classList.toggle('on',x===b));};
+  $$('.sz').forEach(b=>{b.classList.toggle('on',+b.dataset.s===T.size);b.onclick=()=>{T.size=+b.dataset.s;$$('.sz').forEach(x=>x.classList.toggle('on',x===b));};});
+  $('#ghost').classList.toggle('off',!T.help);
+  $('#ghost').textContent=T.ch.k;
+  $('#t-label').innerHTML=`<span class="jp" style="font-size:26px">${T.ch.k}</span> <span class="rm">${T.ch.r}</span>`;
+  const act=$('#t-strip .on');if(act)act.scrollIntoView({inline:'center',block:'nearest'});
+  requestAnimationFrame(()=>{sizeCanvas();redraw();});
+}
+function setTraceChar(c){T.ch=c;T.strokes=[];renderTrace();say(c.w||c.k);}
+$('#t-prev').onclick=()=>{const l=traceList(),i=l.indexOf(T.ch);setTraceChar(l[(i+l.length-1)%l.length]);};
+$('#t-next').onclick=()=>{const l=traceList(),i=l.indexOf(T.ch);setTraceChar(l[(i+1)%l.length]);};
+$('#t-say').onclick=()=>say(T.ch.w||T.ch.k);
+$('#t-help').onclick=()=>{T.help=!T.help;$('#ghost').classList.toggle('off',!T.help);toast(T.help?'Vorlage an':'Vorlage aus – jetzt aus dem Kopf!');};
+$('#t-undo').onclick=()=>{T.strokes.pop();redraw();};
+$('#t-clear').onclick=()=>{T.strokes=[];redraw();};
+$('#t-done').onclick=()=>{
+  if(!T.strokes.length)return toast('Male zuerst das Zeichen nach!');
+  addStar(T.ch);ding();const [x,y]=mid();confetti(x,y,18);say('すごい');
+  toast('Sugoi! すごい! Super gemalt! ⭐');
+};
+const cv=$('#cv'),ctx=cv.getContext('2d');
+function sizeCanvas(){
+  const b=$('#board'),w=b.clientWidth;if(!w)return;
+  const dpr=window.devicePixelRatio||1;
+  cv.width=Math.round(w*dpr);cv.height=Math.round(w*dpr);
+  b.style.setProperty('--bw',w+'px');
+}
+function redraw(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  const W=cv.width;
+  T.strokes.forEach(s=>drawStroke(s,W));
+}
+function drawStroke(s,W){
+  ctx.strokeStyle=s.c;ctx.fillStyle=s.c;ctx.lineCap='round';ctx.lineJoin='round';
+  const lw=s.w/360*W;ctx.lineWidth=lw;const p=s.p.map(q=>[q[0]*W,q[1]*W]);
+  if(p.length===1){ctx.beginPath();ctx.arc(p[0][0],p[0][1],lw/2,0,7);ctx.fill();return;}
+  ctx.beginPath();ctx.moveTo(p[0][0],p[0][1]);
+  for(let i=1;i<p.length-1;i++){const mx=(p[i][0]+p[i+1][0])/2,my=(p[i][1]+p[i+1][1])/2;ctx.quadraticCurveTo(p[i][0],p[i][1],mx,my);}
+  const l=p[p.length-1];ctx.lineTo(l[0],l[1]);ctx.stroke();
+}
+function pt(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height];}
+cv.addEventListener('pointerdown',e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);
+  T.drawing={c:T.color,w:T.size,p:[pt(e)]};T.strokes.push(T.drawing);redraw();});
+cv.addEventListener('pointermove',e=>{if(!T.drawing)return;e.preventDefault();T.drawing.p.push(pt(e));redraw();});
+['pointerup','pointercancel','pointerleave'].forEach(n=>cv.addEventListener(n,()=>{T.drawing=null;}));
+addEventListener('resize',()=>{if(cur==='trace'){sizeCanvas();redraw();}});
+
+/* ---------- Übersetzer (deutsche Buchstaben → Kana) ---------- */
+const R2H={};
+CH.filter(c=>c.t==='h'&&c.g!=='x').forEach(c=>{if(c.k!=='を'&&!(c.k in {}) && !(c.r in R2H))R2H[c.r]=c.k;});
+(function(){
+  const small={a:'ゃ',u:'ゅ',o:'ょ'};
+  const youon={ky:'き',gy:'ぎ',ny:'に',hy:'ひ',by:'び',py:'ぴ',my:'み',ry:'り',sh:'し',ch:'ち',j:'じ'};
+  for(const b in youon)for(const v of 'auo'){const key=(b==='j'||b==='sh'||b==='ch')?b+v:b+v;R2H[key]=youon[b]+small[v];}
+  Object.assign(R2H,{
+    si:'し',ti:'てぃ',tu:'とぅ',hu:'ふ',zi:'じ',di:'でぃ',du:'どぅ',
+    fa:'ふぁ',fi:'ふぃ',fe:'ふぇ',fo:'ふぉ',
+    wo:'うぉ',wi:'うぃ',we:'うぇ',wu:'う',ye:'いぇ',
+    tsa:'つぁ',tsi:'つぃ',tse:'つぇ',tso:'つぉ',
+    che:'ちぇ',she:'しぇ',je:'じぇ',
+    sh:'しゅ',ch:'ふ',ts:'つ',n:'ん',
+    kw:'く',
+  });
+})();
+const KEYS=Object.keys(R2H).sort((a,b)=>b.length-a.length);
+const CONS={k:'く',g:'ぐ',s:'す',t:'と',d:'ど',b:'ぶ',p:'ぷ',f:'ふ',m:'む',r:'る',h:'ふ',y:'い',w:'う',n:'ん'};
+const VOW='aeiou';
+function normDe(s){
+  s=s.toLowerCase().replace(/ä/g,'e').replace(/ö/g,'o').replace(/ü/g,'u').replace(/ß/g,'ss');
+  s=s.replace(/tsch/g,'ch').replace(/sch/g,'sh').replace(/ph/g,'f').replace(/ck/g,'kk').replace(/tz/g,'ts')
+     .replace(/ei/g,'ai').replace(/ey/g,'ai').replace(/eu/g,'oi').replace(/ie/g,'ii')
+     .replace(/qu/g,'kw').replace(/x/g,'ks').replace(/q/g,'k').replace(/c(?!h)/g,'k')
+     .replace(/z/g,'ts').replace(/v/g,'f').replace(/l/g,'r').replace(/j/g,'y').replace(/(?<=[a-z])er$/,'aa');
+  s=s.replace(/w(?![aeiou])/g,'b').replace(/y(?![aeiou])/g,'i');
+  s=s.replace(/([aeiou])h(?![aeiou])/g,'$1');
+  return s;
+}
+function convertRun(s){
+  const out=[];let i=0;
+  while(i<s.length){
+    const ch=s[i],nx=s[i+1];
+    if(nx===ch&&!VOW.includes(ch)){
+      if(ch==='n'||ch==='m'){out.push({r:'n',h:'ん'});i++;continue;}
+      if(ch==='r'||ch==='h'||ch==='b'&&0){i++;continue;}
+      out.push({r:'tt',h:'っ'});i++;continue;
+    }
+    let hit=null;
+    for(const k of KEYS){if(s.startsWith(k,i)){hit=k;break;}}
+    if(hit){out.push({r:hit,h:R2H[hit]});i+=hit.length;continue;}
+    if(CONS[ch]){out.push({r:ch,h:CONS[ch]});i++;continue;}
+    out.push({r:ch,h:ch});i++;
+  }
+  return out;
+}
+const toKata=h=>[...h].map(c=>{const n=c.charCodeAt(0);return(n>=0x3041&&n<=0x3096)?String.fromCharCode(n+0x60):c;}).join('');
+function convertText(txt){
+  const res=[];
+  txt.split(/([^a-zA-ZäöüÄÖÜß]+)/).forEach(part=>{
+    if(!part)return;
+    if(/^[^a-zA-ZäöüÄÖÜß]+$/.test(part)){res.push({gap:true,t:part});return;}
+    const toks=convertRun(normDe(part));
+    toks.forEach((t,i)=>{
+      const prevVow=i?toks[i-1].r.slice(-1):'';
+      t.long=(t.r.length===1&&VOW.includes(t.r)&&prevVow===t.r);
+      res.push(t);
+    });
+  });
+  return res;
+}
+function kanaOf(res,script){
+  return res.map(t=>t.gap?(t.t.trim()?t.t:' '):(script==='k'?(t.long?'ー':toKata(t.h)):t.h)).join('');
+}
+let TR={script:'k'};
+const DICT=(()=>{
+  const m=[];
+  CH.forEach(c=>{if(c.w){m.push({j:c.w,r:c.wr,d:c.wd,e:c.e});}});
+  for(const cat in WORDS)WORDS[cat].forEach(w=>m.push({j:w[0],r:w[1],d:w[2],e:w[3]}));
+  const seen=new Set();return m.filter(x=>seen.has(x.j)?false:seen.add(x.j));
+})();
+function renderTrans(){
+  tabs('#tr-script',()=>TR.script,v=>TR.script=v,updTrans);
+  if(!$('#tr-chips').children.length){
+    $('#tr-chips').innerHTML=['Anna','Mama','Papa','Hund','Schule','Katze','Eis','Hallo'].map(w=>`<button>${w}</button>`).join('');
+    $('#tr-chips').onclick=e=>{const b=e.target.closest('button');if(b){$('#tr-in').value=b.textContent;updTrans();}};
+  }
+  updTrans();
+}
+function updTrans(){
+  const txt=$('#tr-in').value.trim();
+  const res=convertText(txt);
+  $('#tr-syl').innerHTML=txt?res.map(t=>t.gap?'<span class="gap"></span>':`<div class="c"><b>${t.long&&TR.script==='k'?'ー':(TR.script==='k'?toKata(t.h):t.h)}</b><span class="rm">${t.r==='tt'?'(Pause)':t.r}</span></div>`).join(''):'<span style="color:#888">Schreibe oben etwas hinein …</span>';
+  const q=txt.toLowerCase();
+  const found=q?DICT.filter(x=>x.d.toLowerCase().split(/[ ,\/()]+/).includes(q)||x.d.toLowerCase()===q).slice(0,5):[];
+  $('#tr-dict').style.display=found.length?'block':'none';
+  $('#tr-words').innerHTML=found.map(x=>`<div class="wrow" data-j="${x.j}"><span class="e">${x.e}</span><span><div class="j">${x.j}</div><div class="rm" style="font-size:14px;color:#666">${esc(x.r)}</div></span><span style="margin-left:auto;font-size:26px">🔊</span></div>`).join('');
+  $('#tr-words').onclick=e=>{const r=e.target.closest('.wrow');if(r)say(r.dataset.j);};
+}
+$('#tr-in').addEventListener('input',updTrans);
+$('#tr-say').onclick=()=>{const t=kanaOf(convertText($('#tr-in').value.trim()),'h').replace(/[^぀-ヿ ]/g,'');if(t.trim())say(t);else toast('Schreibe zuerst etwas!');};
+$('#tr-trace').onclick=()=>{
+  const res=convertText($('#tr-in').value.trim()).filter(t=>!t.gap);
+  const first=res.map(t=>{const k=TR.script==='k'?toKata(t.h):t.h;return CH.find(c=>c.t===TR.script&&c.k===k);}).find(Boolean);
+  if(!first)return toast('Schreibe zuerst etwas!');
+  T.ch=first;T.script=first.t;nav('trace');
+};
+
+/* ---------- Wörter-Welt ---------- */
+let WC='Hallo';
+function renderWords(){
+  $('#w-cat').innerHTML=Object.keys(WORDS).map(k=>`<button data-v="${k}">${k}</button>`).join('');
+  tabs('#w-cat',()=>WC,v=>WC=v,renderWords);
+  $('#w-list').innerHTML=WORDS[WC].map((w,i)=>`<div class="wrow" data-i="${i}"><span class="e">${w[3]}</span><span><div class="j">${w[0]}</div><div class="rm" style="font-size:14px;color:#666">${esc(w[1])}</div><div style="font-size:15px">${esc(w[2])}</div></span><span style="margin-left:auto;font-size:28px">🔊</span></div>`).join('');
+  $('#w-list').onclick=e=>{const r=e.target.closest('.wrow');if(r)say(WORDS[WC][+r.dataset.i][0]);};
+}
+
+/* ---------- Tipps ---------- */
+function renderTips(){
+  const rows=[['あいうえお','あ-Zeile'],['かきくけこ','か-Zeile'],['さしすせそ','さ-Zeile'],['たちつてと','た-Zeile'],['なにぬねの','な-Zeile'],['はひふへほ','は-Zeile'],['まみむめも','ま-Zeile'],['やゆよ','や-Zeile'],['らりるれろ','ら-Zeile'],['わをん','わ-Zeile']];
+  $('#plan').innerHTML=rows.map((r,i)=>`<span><b>Tag ${i+1}</b></span><span class="jp"><b class="jp">${r[0]}</b></span>`).join('');
+}
+
+/* ---------- Spiele ---------- */
+let G=null,GS='h';
+function showGameMenu(){
+  G=null;$('#g-menu').style.display='block';$('#g-play').style.display='none';
+  tabs('#g-script',()=>GS,v=>GS=v);
+  $$('[data-game]').forEach(b=>b.onclick=()=>startGame(b.dataset.game));
+}
+function gpool(mode){
+  let p=CH.filter(c=>c.e&&c.w&&c.g==='b'&&(GS==='both'||c.t===GS));
+  if(mode==='ear')p=p.filter(c=>c.w.startsWith(c.k));
+  return p;
+}
+function startGame(mode){
+  G={mode,n:0,score:0,pool:gpool(mode),lock:false};
+  $('#g-menu').style.display='none';$('#g-play').style.display='block';
+  if(mode==='mem')return startMemory();
+  nextQ();
+}
+function nextQ(){
+  if(!G)return;
+  if(G.n>=10)return endGame();
+  const q=rnd(G.pool);G.q=q;G.lock=false;
+  let opts;
+  if(G.mode==='k2pic'){
+    const seenE=new Set([q.e]);opts=shuffle(G.pool.filter(c=>c.k!==q.k&&!c.w.includes(q.k))).filter(c=>!seenE.has(c.e)&&seenE.add(c.e)).slice(0,3);
+  }else{
+    opts=shuffle(G.pool.filter(c=>c.k!==q.k&&c.t===q.t)).slice(0,3);
+  }
+  opts=shuffle([q,...opts]);
+  let qh='';
+  if(G.mode==='pic2k')qh=`<div class="bigpic">${q.e}</div><div class="gap">${q.w.replace(q.k,'<b class="hole">?</b>')}</div><div class="hint">Welches Zeichen fehlt im Wort?</div><button class="sq" id="g-say">🔊</button>`;
+  if(G.mode==='k2pic')qh=`<div class="bigk">${q.k}</div><div class="hint">Welches Wort hat dieses Zeichen?</div><button class="sq" id="g-say">🔊</button>`;
+  if(G.mode==='ear')qh=`<div class="bigpic">👂</div><div class="hint">Hör zu: Mit welchem Zeichen fängt das Wort an?</div><button class="btn b-sky" id="g-say" style="flex:none;min-width:160px">🔊 Nochmal hören</button>`;
+  const ah=opts.map(o=>G.mode==='k2pic'?`<button data-k="${o.k}"><span class="p">${o.e}</span><span class="w">${o.w}</span></button>`:`<button data-k="${o.k}"><span class="k">${o.k}</span></button>`).join('');
+  $('#g-play').innerHTML=`<div class="prog"><i style="width:${G.n*10}%"></i></div><div class="q">${qh}</div><div class="ans">${ah}</div>`;
+  const sb=$('#g-say');if(sb)sb.onclick=()=>say(q.w||q.k);
+  if(G.mode==='ear'||G.mode==='pic2k')setTimeout(()=>say(q.w),250);
+  $$('#g-play .ans button').forEach(b=>b.onclick=()=>answer(b,q));
+}
+function answer(btn,q){
+  if(G.lock)return;G.lock=true;
+  const ok=btn.dataset.k===q.k;
+  if(ok){btn.classList.add('ok');G.score++;addStar(q);ding();const r=btn.getBoundingClientRect();confetti(r.left+r.width/2,r.top,8);say(q.w);}
+  else{btn.classList.add('no');oops();$$('#g-play .ans button').forEach(b=>{if(b.dataset.k===q.k)b.classList.add('ok');});setTimeout(()=>say(q.w),300);}
+  G.n++;setTimeout(nextQ,ok?1100:1900);
+}
+function endGame(){
+  const s=G.score,st=s>=9?3:s>=6?2:1;
+  $('#g-play').innerHTML=`<div class="end"><div class="big">${'⭐'.repeat(st)}</div><h2>${s>=9?'Fantastisch!':s>=6?'Sehr gut!':'Gut gemacht!'}</h2><p>${s} von 10 richtig.</p><p class="jp" style="font-size:28px;font-weight:700">${s>=9?'すごい！':s>=6?'じょうず！':'がんばって！'}</p>
+   <div class="btns"><button class="btn b-red" id="g-again">🔁 Nochmal</button><button class="btn b-grey" id="g-menu-b">Zur Auswahl</button></div></div>`;
+  const [x,y]=mid();confetti(x,y,24);ding();
+  $('#g-again').onclick=()=>startGame(G.mode);$('#g-menu-b').onclick=showGameMenu;
+}
+function startMemory(){
+  const seenM=new Set();const base=shuffle(G.pool).filter(c=>!seenM.has(c.e)&&seenM.add(c.e)).slice(0,6);
+  const cards=shuffle(base.flatMap(c=>[{c,t:'k'},{c,t:'p'}]));
+  G.cards=cards;G.up=[];G.done=0;G.moves=0;
+  $('#g-play').innerHTML=`<div class="note" style="text-align:center;margin-bottom:10px">Finde immer ein Zeichen und das passende Bild!</div><div class="mem" id="mem">${cards.map((x,i)=>`<button class="mc" data-i="${i}">❓</button>`).join('')}</div>`;
+  $('#mem').onclick=e=>{
+    const b=e.target.closest('.mc');if(!b||G.lock)return;
+    const i=+b.dataset.i,cd=cards[i];
+    if(b.classList.contains('up')||b.classList.contains('done'))return;
+    b.classList.add('up');b.innerHTML=cd.t==='k'?`<span class="jp">${cd.c.k}</span>`:`<span class="pe">${cd.c.e}</span>`;
+    G.up.push(i);if(cd.t==='k')say(cd.c.k);
+    if(G.up.length===2){
+      G.moves++;const [a,b2]=G.up.map(j=>cards[j]);
+      if(a.c===b2.c&&a.t!==b2.t){
+        G.lock=true;
+        setTimeout(()=>{G.up.forEach(j=>{const el=$(`.mc[data-i="${j}"]`);el.classList.remove('up');el.classList.add('done');});
+          addStar(a.c);ding();say(a.c.w);G.up=[];G.done++;G.lock=false;
+          if(G.done===6){setTimeout(()=>{G.score=Math.max(1,10-Math.max(0,G.moves-6));G.n=10;endGame();},900);}
+        },500);
+      }else{
+        G.lock=true;oops();
+        setTimeout(()=>{G.up.forEach(j=>{const el=$(`.mc[data-i="${j}"]`);el.classList.remove('up');el.innerHTML='❓';});G.up=[];G.lock=false;},950);
+      }
+    }
+  };
+}
+
+/* ---------- Start-Animation ---------- */
+function runIntro(){
+  const intro=$('#intro');
+  for(let i=0;i<9;i++){const p=document.createElement('span');p.className='petal';p.textContent='🌸';
+    p.style.left=(Math.random()*100)+'%';p.style.animationDelay=(-Math.random()*3)+'s';p.style.fontSize=(18+Math.random()*18)+'px';intro.appendChild(p);}
+  let ended=false,timers=[];
+  const T_=(f,ms)=>timers.push(setTimeout(f,ms));
+  function cleanup(){
+    timers.forEach(clearTimeout);
+    ['.introscene','.cutA','.cutB','#cutline','#flash'].forEach(s=>$$(s).forEach(n=>n.remove()));
+  }
+  function split(){
+    if(ended)return;
+    const A=intro.cloneNode(true),B=intro.cloneNode(true);
+    [A,B].forEach(n=>{n.removeAttribute('id');n.classList.add('frozen');});
+    A.classList.add('cutA');B.classList.add('cutB');
+    document.body.append(A,B);intro.remove();
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.id='cutline';
+    svg.innerHTML='<line x1="-2%" y1="73%" x2="102%" y2="27%"/>';document.body.appendChild(svg);
+    const fl=document.createElement('div');fl.id='flash';document.body.appendChild(fl);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{A.classList.add('go');B.classList.add('go');}));
+  }
+  function finish(){if(ended)return;ended=true;cleanup();}
+  T_(swoosh,1720);
+  T_(split,2020);
+  T_(finish,3050);
+  intro.addEventListener('pointerdown',()=>{try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();AC.resume&&AC.resume();}catch(e){}finish();});
+}
+
+/* ---------- Start ---------- */
+(function init(){
+  setOpts();showStars();
+  if('speechSynthesis' in window)speechSynthesis.getVoices();
+  runIntro();
+  if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+})();
+</script>
+</body>
+</html>

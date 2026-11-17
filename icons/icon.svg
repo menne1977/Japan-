@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff5a5f"/>
+      <stop offset="1" stop-color="#c81d3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="108" height="108" fill="url(#bg)"/>
+  <circle cx="54" cy="56" r="34" fill="#ffffff" opacity="0.18"/>
+  <!-- Katana-Schnitt -->
+  <path d="M92 12 L16 96" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M92 12 L16 96" stroke="#ffe36e" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Gesicht -->
+  <circle cx="54" cy="60" r="24" fill="#ffdcbc"/>
+  <!-- Haare -->
+  <path d="M30 56 L26 40 L36 42 L34 28 L46 34 L54 24 L62 34 L74 28 L72 42 L82 40 L78 56 Z" fill="#1d1d2b"/>
+  <!-- Stirnband -->
+  <path d="M30 50 L78 50 L78 57 L30 57 Z" fill="#ffffff"/>
+  <circle cx="54" cy="53.5" r="3.2" fill="#e63946"/>
+  <path d="M78 52 L88 46 L86 56 Z" fill="#ffffff"/>
+  <!-- Augen -->
+  <ellipse cx="45.5" cy="68" rx="3.6" ry="4.6" fill="#222233"/>
+  <ellipse cx="62.5" cy="68" rx="3.6" ry="4.6" fill="#222233"/>
+  <circle cx="46.7" cy="66.4" r="1.3" fill="#fff"/>
+  <circle cx="63.7" cy="66.4" r="1.3" fill="#fff"/>
+  <!-- Wangen und Mund -->
+  <circle cx="40" cy="74" r="3" fill="#ff9aa2" opacity="0.7"/>
+  <circle cx="68" cy="74" r="3" fill="#ff9aa2" opacity="0.7"/>
+  <path d="M49 76 Q54 81 59 76" stroke="#7a2a2a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+</svg>

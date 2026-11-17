@@ -1,0 +1,56 @@
+name: APK bauen
+
+# Baut bei jedem Push (und per Knopfdruck) die Android-App.
+# Die fertige APK liegt danach unter "Releases" (neueste Version) und in den Workflow-Artefakten.
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Lern-Seite in die App kopieren
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp index.html android/app/src/main/assets/index.html
+
+      - name: APK bauen
+        run: gradle -p android assembleDebug --no-daemon --stacktrace
+
+      - name: APK umbenennen
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk NihongoKids.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: NihongoKids-APK
+          path: NihongoKids.apk
+
+      - name: Als Release veröffentlichen (nur Hauptzweig)
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-neueste
+          name: Nihongo Kids APK (neueste Version)
+          body: |
+            Die neueste Android-App zum Installieren.
+            Datei **NihongoKids.apk** herunterladen, öffnen und "Installation aus dieser Quelle erlauben" bestätigen.
+          files: NihongoKids.apk
+          make_latest: true
